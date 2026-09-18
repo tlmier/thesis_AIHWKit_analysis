@@ -1,0 +1,191 @@
+// ============================================================
+// Metriken je Trainingslauf (ein Sheet = ein Lauf)
+//
+// Gegeben: Genauigkeit a_1 .. a_N ueber N Epochen (Spalte 2),
+//          Fensterbreite W = nWin (10, also 10% bei N = 100).
+//
+// Fenstermedian        M_k    = median(a_k .. a_{k+W-1}),
+//                               k = 1 .. N-W+1
+//
+// BestWinMedian        M*     = max_k M_k        HAUPTMETRIK
+// BestWinEpoch         k* + W - 1,  k* = argmax_k M_k
+// MaxAcc               max_i a_i                 (nur ergaenzend)
+//
+// M_end                = median(a_{N-W+1} .. a_N)
+//                        nur intern, Endniveau fuer Degradation
+//
+// MAD                  = median(|a_i - M_end|),  i = N-W+1 .. N
+// RobustCV             = (MAD / 0.6745) / M_end
+//                        0.6745 = Phi^-1(0.75), macht MAD fuer
+//                        normalverteilte Daten mit sigma vergleichbar
+//
+// Degradation          D      = M* - M_end       (>= 0 per Konstruktion)
+// Degraded             D > degRel * M*
+//
+// EpochTo95pct         min{ j : a_j .. a_{j+nHold-1} >= thres * M* }
+//                      Referenz ist M*, nicht M_end: faellt die Kurve
+//                      am Ende ab, waere M_end eine zu niedrige Huerde.
+//                      Existiert kein solches j, oszilliert die Kurve
+//                      zu stark - dann NOHOLD_FLAG = -1.
+//
+// Sonderfaelle sind als Sentinel kodiert, damit die Heatmaps nicht
+// luegen. In beiden waeren diese Faelle sonst die Bestwerte:
+//   Missing Value (grau) : M* < minAcc, nie gelernt
+//   -1 (eigene Farbe)    : in RobustCV      Niveau wieder verloren
+//                          in EpochTo95pct  nie nHold Epochen gehalten
+// ============================================================
+
+
+// --- Parameter ------------------------------------------------
+string bk$      = "Book1";  // Short Name des Datenbooks mit den 64 Sheets
+double thres    = 0.95;     // Bruchteil von M*, der als "erreicht" gilt
+double minAcc   = 20;       // M* unter diesem Wert = Lauf hat nie gelernt
+int    nWin     = 10;       // Fensterbreite W in Epochen
+int    nHold    = 3;        // so viele Epochen in Folge muessen halten
+double degRel   = 0.10;     // relativer Verlust, ab dem "degradiert" gilt
+double DEG_FLAG    = -1;    // Ersatzwert in RobustCV bei Degradation
+double NOHOLD_FLAG = -1;    // Ersatzwert, wenn nHold nie erreicht wird
+
+
+// --- Ergebnisbuch anlegen -------------------------------------
+string rb$;                                                  // nimmt den Namen des neuen Books auf
+newbook name:="ResultsMetrics" sheet:=1 result:=rb$;         // Book anlegen, Short Name nach rb$
+type "Ergebnisse -> Book %(rb$)   (Daten aus %(bk$))";       // Ziel zur Kontrolle ausgeben
+if(rb$ == bk$) { type "ABBRUCH: identisch!"; return; }        // Notbremse: nie ins Datenbook schreiben
+
+
+// --- Spalten anlegen ------------------------------------------
+wks.ncols = 13;              // 13 Spalten im Ergebnis-Sheet reservieren
+wks.col1.format = 2;         // Spalte 1 auf Text (Format 2) stellen
+wks.col2.format = 2;         // Spalte 2 auf Text
+wks.col5.format = 2;         // Spalte 5 auf Text
+col(1)[L]$  = "Sheet";           // [L] setzt den Long Name der Spalte
+col(2)[L]$  = "Optimizer";       // SGD / Momentum / RMSprop / Adam
+col(3)[L]$  = "BatchSize";       // 1 / 16 / 64 / 128 / 256
+col(4)[L]$  = "HiddenLayers";    // 25 / 50 / 75 / 100
+col(5)[L]$  = "RowLabel";        // "Adam_256", spaeter y-Achse der Heatmap
+col(6)[L]$  = "BestWinMedian";   // M*, Hauptmetrik Genauigkeit
+col(7)[L]$  = "RobustCV";        // Stabilitaet, mit Sentinel -1
+col(8)[L]$  = "EpochTo95pct";    // Konvergenzgeschwindigkeit
+col(9)[L]$  = "Degradation";     // D = M* - M_end
+col(10)[L]$ = "MaxAcc";          // hoechster Einzelwert
+col(11)[L]$ = "BestWinEpoch";    // wann M* erreicht wurde
+col(12)[L]$ = "Learned";         // 0/1 zum Abzaehlen
+col(13)[L]$ = "Degraded";        // 0/1 zum Abzaehlen
+
+
+// --- Schreibziele ---------------------------------------------
+// Absolut adressiert, weil in der Schleife das Datenbook aktiv ist.
+range rName = [%(rb$)]1!col(1);   // Sheetname
+range rOpt  = [%(rb$)]1!col(2);   // Optimizer
+range rBS   = [%(rb$)]1!col(3);   // BatchSize
+range rHL   = [%(rb$)]1!col(4);   // HiddenLayers
+range rLab  = [%(rb$)]1!col(5);   // RowLabel
+range rBW   = [%(rb$)]1!col(6);   // BestWinMedian
+range rCV   = [%(rb$)]1!col(7);   // RobustCV
+range rEp   = [%(rb$)]1!col(8);   // EpochTo95pct
+range rDeg  = [%(rb$)]1!col(9);   // Degradation
+range rMax  = [%(rb$)]1!col(10);  // MaxAcc
+range rBWE  = [%(rb$)]1!col(11);  // BestWinEpoch
+range rOk   = [%(rb$)]1!col(12);  // Learned
+range rDgd  = [%(rb$)]1!col(13);  // Degraded
+
+
+// --- Schleife ueber alle Sheets des Datenbooks ----------------
+window -a %(bk$);    // Datenbook aktivieren, damit doc -e LW darueber laeuft
+int idx = 0;         // Zeilenzaehler im Ergebnis-Sheet
+
+doc -e LW            // aktiviert nacheinander jedes Sheet dieses Books
+{
+    idx++;                             // naechste Ergebniszeile
+    string shName$ = layer.name$;      // Sheetname, z.B. "output_Adam_1_25"
+
+    // -- Endfenster und Bestwert --------------------------------
+    int nRows = wks.maxRows;           // Anzahl Epochen N in diesem Sheet
+    int startRow = nRows - nWin + 1;   // erste Zeile des Endfensters
+    if(startRow < 1) startRow = 1;     // abfangen, falls N < W
+
+    range rLast = col(2)[startRow:nRows];   // Genauigkeiten des Endfensters
+    double dMedian = median(rLast);         // M_end, nur intern gebraucht
+    double dMax    = max(col(2)[1:nRows]);  // hoechster Einzelwert der Kurve
+
+    // -- M* und k*: bestes gleitendes Fenster -------------------
+    double bestMed = -1;               // bisher bestes M_k
+    int    bestEnd = -1;               // Endepoche des bisher besten Fensters
+    int w;                             // Fensterposition (Startzeile)
+    for(w = 1; w <= nRows - nWin + 1; w++)   // alle Fensterpositionen
+    {
+        int wEnd = w + nWin - 1;       // Endzeile dieses Fensters
+        range rW = col(2)[w:wEnd];     // die W Werte dieses Fensters
+        double m = median(rW);         // M_k dieses Fensters
+        if(m > bestMed) { bestMed = m; bestEnd = wEnd; }   // neues Maximum merken
+    }
+    double dDeg = bestMed - dMedian;   // D = M* - M_end, Verlust am Ende
+
+    // -- Geschwindigkeit ----------------------------------------
+    double dTarget = bestMed * thres;      // Schwelle: 95% von M*
+    double foundEpoch = NOHOLD_FLAG;       // -1, bis eine Serie gefunden ist
+    int runLen = 0;                        // Laenge der laufenden Serie
+    int i;                                 // Epochenindex
+    for(i = 1; i <= nRows; i++)            // Kurve von vorne durchgehen
+    {
+        if(col(2)[i] >= dTarget)           // Wert liegt ueber der Schwelle
+        {
+            runLen++;                      // Serie verlaengern
+            // beim ersten Mal nHold in Folge: Serienanfang als Epoche merken
+            if(runLen >= nHold && foundEpoch == NOHOLD_FLAG) foundEpoch = col(1)[i - nHold + 1];
+        }
+        else runLen = 0;                   // Ausreisser nach unten bricht die Serie
+    }
+
+    // -- Sheetname zerlegen -------------------------------------
+    string sOpt$ = shName.GetToken(2, '_')$;   // Token 2 = Optimizer
+    string sBS$  = shName.GetToken(3, '_')$;   // Token 3 = BatchSize
+    string sHL$  = shName.GetToken(4, '_')$;   // Token 4 = HiddenLayers
+
+    // -- Identifikation schreiben -------------------------------
+    rName[idx]$ = shName$;                // voller Sheetname
+    rOpt[idx]$  = sOpt$;                  // Optimizer als Text
+    rBS[idx]    = %(sBS$);                // %() wandelt den Text in eine Zahl
+    rHL[idx]    = %(sHL$);                // dito
+    rLab[idx]$  = "%(sOpt$)_%(sBS$)";     // zusammengesetztes y-Achsen-Label
+    rMax[idx]   = dMax;                   // MaxAcc gilt auch fuer tote Laeufe
+
+    // -- Metriken schreiben -------------------------------------
+    // Pruefung gegen M*, nicht gegen M_end: ein Lauf, der 60% erreicht
+    // und dann kollabiert, hat gelernt und seine Degradation zaehlt.
+    if(bestMed < minAcc)
+    {
+        rBW[idx]  = 0/0;      // 0/0 ist in LabTalk der Missing Value
+        rCV[idx]  = 0/0;      // Heatmap zeigt das als graue Zelle
+        rEp[idx]  = 0/0;      // Geschwindigkeit ohne Lernen sinnlos
+        rDeg[idx] = 0/0;      // Degradation ohne Lernen sinnlos
+        rBWE[idx] = 0/0;      // Zeitpunkt ohne Lernen sinnlos
+        rOk[idx]  = 0;        // Flag: nicht gelernt
+        rDgd[idx] = 0/0;      // Degradationsfrage stellt sich nicht
+    }
+    else
+    {
+        rBW[idx]  = bestMed;      // M* als Genauigkeit
+        rEp[idx]  = foundEpoch;   // Epoche oder -1, falls nie gehalten
+        rDeg[idx] = dDeg;         // Verlust in Prozentpunkten
+        rBWE[idx] = bestEnd;      // Endepoche des besten Fensters
+        rOk[idx]  = 1;            // Flag: gelernt
+
+        if(dDeg > degRel * bestMed)   // Verlust groesser als 10% von M*?
+        {
+            rDgd[idx] = 1;            // Flag: degradiert
+            // Sentinel statt Stabilitaetswert: das Endfenster kann ruhig
+            // sein, obwohl das Niveau vorher verloren ging.
+            rCV[idx]  = DEG_FLAG;
+        }
+        else
+        {
+            dataset dAbsDev = abs(rLast - dMedian);   // |a_i - M_end| im Endfenster
+            rDgd[idx] = 0;                            // Flag: nicht degradiert
+            rCV[idx]  = (median(dAbsDev) / 0.6745) / dMedian;   // RobustCV
+        }
+    }
+}
+
+type "Fertig: $(idx) Sheets verarbeitet.";   // Kontrollausgabe, sollte 64 sein

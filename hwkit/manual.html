@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>MANUAL</title>
+
+
+<style type="text/css">
+body {
+  font-family: Helvetica, arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: white;
+  padding: 30px; }
+
+body > *:first-child {
+  margin-top: 0 !important; }
+body > *:last-child {
+  margin-bottom: 0 !important; }
+
+a {
+  color: #4183C4; }
+a.absent {
+  color: #cc0000; }
+a.anchor {
+  display: block;
+  padding-left: 30px;
+  margin-left: -30px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0; }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+  cursor: text;
+  position: relative; }
+
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA09pVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoMTMuMCAyMDEyMDMwNS5tLjQxNSAyMDEyLzAzLzA1OjIxOjAwOjAwKSAgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OUM2NjlDQjI4ODBGMTFFMTg1ODlEODNERDJBRjUwQTQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OUM2NjlDQjM4ODBGMTFFMTg1ODlEODNERDJBRjUwQTQiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5QzY2OUNCMDg4MEYxMUUxODU4OUQ4M0REMkFGNTBBNCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5QzY2OUNCMTg4MEYxMUUxODU4OUQ4M0REMkFGNTBBNCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PsQhXeAAAABfSURBVHjaYvz//z8DJYCRUgMYQAbAMBQIAvEqkBQWXI6sHqwHiwG70TTBxGaiWwjCTGgOUgJiF1J8wMRAIUA34B4Q76HUBelAfJYSA0CuMIEaRP8wGIkGMA54bgQIMACAmkXJi0hKJQAAAABJRU5ErkJggg==) no-repeat 10px center;
+  text-decoration: none; }
+
+h1 tt, h1 code {
+  font-size: inherit; }
+
+h2 tt, h2 code {
+  font-size: inherit; }
+
+h3 tt, h3 code {
+  font-size: inherit; }
+
+h4 tt, h4 code {
+  font-size: inherit; }
+
+h5 tt, h5 code {
+  font-size: inherit; }
+
+h6 tt, h6 code {
+  font-size: inherit; }
+
+h1 {
+  font-size: 28px;
+  color: black; }
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #cccccc;
+  color: black; }
+
+h3 {
+  font-size: 18px; }
+
+h4 {
+  font-size: 16px; }
+
+h5 {
+  font-size: 14px; }
+
+h6 {
+  color: #777777;
+  font-size: 14px; }
+
+p, blockquote, ul, ol, dl, li, table, pre {
+  margin: 15px 0; }
+
+hr {
+  background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAYAAACtBE5DAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OENDRjNBN0E2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OENDRjNBN0I2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4Q0NGM0E3ODY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4Q0NGM0E3OTY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqqezsUAAAAfSURBVHjaYmRABcYwBiM2QSA4y4hNEKYDQxAEAAIMAHNGAzhkPOlYAAAAAElFTkSuQmCC) repeat-x 0 0;
+  border: 0 none;
+  color: #cccccc;
+  height: 4px;
+  padding: 0;
+}
+
+body > h2:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+body > h1:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+  body > h1:first-child + h2 {
+    margin-top: 0;
+    padding-top: 0; }
+body > h3:first-child, body > h4:first-child, body > h5:first-child, body > h6:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0; }
+
+h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
+  margin-top: 0; }
+
+li p.first {
+  display: inline-block; }
+li {
+  margin: 0; }
+ul, ol {
+  padding-left: 30px; }
+
+ul :first-child, ol :first-child {
+  margin-top: 0; }
+
+dl {
+  padding: 0; }
+  dl dt {
+    font-size: 14px;
+    font-weight: bold;
+    font-style: italic;
+    padding: 0;
+    margin: 15px 0 5px; }
+    dl dt:first-child {
+      padding: 0; }
+    dl dt > :first-child {
+      margin-top: 0; }
+    dl dt > :last-child {
+      margin-bottom: 0; }
+  dl dd {
+    margin: 0 0 15px;
+    padding: 0 15px; }
+    dl dd > :first-child {
+      margin-top: 0; }
+    dl dd > :last-child {
+      margin-bottom: 0; }
+
+blockquote {
+  border-left: 4px solid #dddddd;
+  padding: 0 15px;
+  color: #777777; }
+  blockquote > :first-child {
+    margin-top: 0; }
+  blockquote > :last-child {
+    margin-bottom: 0; }
+
+table {
+  padding: 0;border-collapse: collapse; }
+  table tr {
+    border-top: 1px solid #cccccc;
+    background-color: white;
+    margin: 0;
+    padding: 0; }
+    table tr:nth-child(2n) {
+      background-color: #f8f8f8; }
+    table tr th {
+      font-weight: bold;
+      border: 1px solid #cccccc;
+      margin: 0;
+      padding: 6px 13px; }
+    table tr td {
+      border: 1px solid #cccccc;
+      margin: 0;
+      padding: 6px 13px; }
+    table tr th :first-child, table tr td :first-child {
+      margin-top: 0; }
+    table tr th :last-child, table tr td :last-child {
+      margin-bottom: 0; }
+
+img {
+  max-width: 100%; }
+
+span.frame {
+  display: block;
+  overflow: hidden; }
+  span.frame > span {
+    border: 1px solid #dddddd;
+    display: block;
+    float: left;
+    overflow: hidden;
+    margin: 13px 0 0;
+    padding: 7px;
+    width: auto; }
+  span.frame span img {
+    display: block;
+    float: left; }
+  span.frame span span {
+    clear: both;
+    color: #333333;
+    display: block;
+    padding: 5px 0 0; }
+span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both; }
+  span.align-center > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px auto 0;
+    text-align: center; }
+  span.align-center span img {
+    margin: 0 auto;
+    text-align: center; }
+span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both; }
+  span.align-right > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px 0 0;
+    text-align: right; }
+  span.align-right span img {
+    margin: 0;
+    text-align: right; }
+span.float-left {
+  display: block;
+  margin-right: 13px;
+  overflow: hidden;
+  float: left; }
+  span.float-left span {
+    margin: 13px 0 0; }
+span.float-right {
+  display: block;
+  margin-left: 13px;
+  overflow: hidden;
+  float: right; }
+  span.float-right > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px auto 0;
+    text-align: right; }
+
+code, tt {
+  margin: 0 2px;
+  padding: 0 5px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px; }
+
+pre code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent; }
+
+.highlight pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px; }
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px; }
+  pre code, pre tt {
+    background-color: transparent;
+    border: none; }
+
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+
+kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  font-size: 11px;
+  line-height: 10px;
+  color: #555;
+  vertical-align: middle;
+  background-color: #fcfcfc;
+  border: solid 1px #ccc;
+  border-bottom-color: #bbb;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 #bbb
+}
+
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:0 auto;
+    }
+}
+@media print {
+	table, pre {
+		page-break-inside: avoid;
+	}
+	pre {
+		word-wrap: break-word;
+	}
+  body {
+    padding: 2cm; 
+  }
+}
+</style>
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">HWKit GUI — Manual &amp; Documentation</h1>
+
+<p>HWKit GUI is a graphical tool built on IBM&#39;s <a href="https://github.com/IBM/aihwkit">aihwkit</a>
+analog-AI simulator. It does three things:</p>
+
+<ol>
+<li><strong>Fit</strong> aihwkit device models to measured pulse-response data of a real
+analog synapse device (LTP/LTD conductance curves).</li>
+<li><strong>Simulate</strong> neural-network training on crossbar arrays built from that
+fitted device, including peripheral non-idealities (DAC/ADC resolution and
+noise, read noise).</li>
+<li><strong>Compare</strong> synapse architectures (&quot;device modes&quot;): single device, averaged
+pair, true differential pair, and the Tiki-Taka training algorithms.</li>
+</ol>
+
+<p><strong>Provenance.</strong> HWKit GUI builds on aihwkit [1, 2]: the device physics models, the
+training compounds (vector, one-sided and transfer unit cells, refresh and
+chopper mechanics), the peripheral I/O model and the analog optimizers are
+aihwkit implementations. HWKit GUI&#39;s own design contributions are the fitting
+pipeline and its normalization (§3), the GUI and workflow, and the device-mode
+and parameter wiring documented here. Sections below tag aihwkit-provided
+behaviour with references [1]–[4].</p>
+
+<hr>
+
+<h2 id="toc_1">1. Installation &amp; Setup</h2>
+
+<p>Requirements: Python 3.11, aihwkit 1.1.0 (CPU build) [1], PyTorch (installed
+as an aihwkit dependency), and a conda distribution such as
+<a href="https://github.com/conda-forge/miniforge">Miniforge</a>. The GUI runs on macOS
+(tested) and Windows (supported; testing pending).</p>
+
+<p><strong>macOS</strong></p>
+
+<div><pre><code class="language-bash">./setup.sh            # installs Miniforge (via Homebrew) + conda env &quot;aihwkit&quot;
+conda activate aihwkit
+python main.py        # launches the GUI</code></pre></div>
+
+<p><strong>Windows</strong> (Miniforge/Anaconda prompt)</p>
+
+<div><pre><code class="language-none">conda create -n aihwkit python=3.11
+conda activate aihwkit
+pip install aihwkit
+python main.py</code></pre></div>
+
+<p>On macOS, aihwkit and PyTorch each bundle their own OpenMP runtime, which
+crashes on import unless <code>KMP_DUPLICATE_LIB_OK=TRUE</code> is set — <code>main.py</code> sets
+it automatically (harmless on Windows), and <code>setup.sh</code> also writes it into the
+conda environment.</p>
+
+<p>The documentation ships with the app as one combined page (<code>docs.html</code>,
+generated by <code>build_docs.py</code>) with two switchable tabs: this manual and the
+API reference. <strong>Help → Manual</strong> and <strong>Help → API Reference</strong> open it in the
+browser on the corresponding tab; the manual also exists standalone as
+<code>manual.html</code>.</p>
+
+<hr>
+
+<h2 id="toc_2">2. Workflow overview</h2>
+
+<div><pre><code class="language-none">measurement (.txt) ─ Fit ─► fitted device (.fit) ──┐
+        configure or load   sim config (.sim) ─────┼─► Simulate ─► live plots + results (.csv)
+        configure or load   network (.net) ────────┘</code></pre></div>
+
+<p>The three inputs are independent: the device comes from a fit (or a loaded
+<code>.fit</code>), while simulation config and network are configured or loaded on
+their own — only <strong>Simulate</strong> brings them together.</p>
+
+<p>Everything currently held in memory is shown in the <strong>Current Data</strong> panel and
+can be saved/reloaded through the File menu (<code>.fit</code>, <code>.sim</code>, <code>.net</code>, <code>.csv</code>).</p>
+
+<hr>
+
+<h2 id="toc_3">3. Device fitting</h2>
+
+<h3 id="toc_4">3.1 Measurement file format</h3>
+
+<p>A plain text file with one conductance value per line (whitespace- or
+comma-separated also works). The file must contain an <strong>even</strong> number of
+values <code>2·n</code>:</p>
+
+<ul>
+<li>values <code>1 … n</code> — <strong>LTP sweep</strong>: conductance after each of <code>n</code> potentiation
+pulses, starting from the device minimum,</li>
+<li>values <code>n+1 … 2n</code> — <strong>LTD sweep</strong>: conductance after each of <code>n</code> depression
+pulses, starting from the device maximum.</li>
+</ul>
+
+<p>When fitting, the GUI asks for the <strong>unit</strong> the file is written in
+(S, mS, µS, nS, pS); values are converted internally.</p>
+
+<p><strong>The order of the values is a hard requirement:</strong> the LTP half must ascend
+from the device minimum, and the LTD half must start at the device maximum
+and descend. The tool does not detect a differently ordered export (e.g. an
+LTD sweep sorted ascending) — it will produce a meaningless fit without any
+warning. After every fit, check the preview plot: the fitted curves must
+follow the measured points.</p>
+
+<blockquote>
+<p><strong>Assumption (important):</strong> the fit interprets the curve as the response to
+<em>identical</em> pulses — the per-pulse conductance change is attributed entirely
+to the device state. If the measurement used a pulse-amplitude ramp, see the
+limitation in §8.2.</p>
+</blockquote>
+
+<h3 id="toc_5">3.2 Normalization: offset and scale</h3>
+
+<p>Measured conductances <code>G</code> are mapped to simulator weights <code>w</code> by</p>
+
+<div><pre><code class="language-none">w = (G − offset) / scale        offset = (G_max + G_min) / 2   [µS]
+G = w · scale + offset          scale  = (G_max − G_min) / 2   [µS per weight unit]</code></pre></div>
+
+<p>so every fitted device spans exactly <strong>[−1, +1]</strong> regardless of the
+measurement unit. This keeps training behaviour (learning rates, <code>dw_min</code>,
+ADC bounds) independent of the unit the file happened to be written in.
+<code>offset</code> and <code>scale</code> are stored in the <code>.fit</code> file and shown in the Current
+Data panel, so weights can always be mapped back to physical conductance.</p>
+
+<h3 id="toc_6">3.3 Running a fit</h3>
+
+<p><strong>Fit</strong> button → choose the <code>.txt</code> file → one <strong>Fit Settings</strong> window asks
+for the file&#39;s conductance unit and the four variation (noise) parameters
+together; closing that window cancels the fit:</p>
+
+<table>
+<thead>
+<tr>
+<th>Dialog field</th>
+<th>aihwkit parameter</th>
+<th>Meaning</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Cycle to Cycle Step Standard Deviation</td>
+<td><code>dw_min_std</code></td>
+<td>pulse-to-pulse variation of the update step (relative to <code>dw_min</code>)</td>
+</tr>
+<tr>
+<td>Device to Device Step Standard Deviation</td>
+<td><code>dw_min_dtod</code></td>
+<td>per-device variation of the update step, fixed at construction</td>
+</tr>
+<tr>
+<td>Device to Device Minimum Conductance Std</td>
+<td><code>w_min_dtod</code></td>
+<td>per-device variation of the lower bound</td>
+</tr>
+<tr>
+<td>Device to Device Maximum Conductance Std</td>
+<td><code>w_max_dtod</code></td>
+<td>per-device variation of the upper bound</td>
+</tr>
+</tbody>
+</table>
+
+<p>The tool then fits <strong>every supported device model</strong> against the data
+(SoftBounds, SoftBoundsPmax, ExpStep, LinearStep, ConstantStep, PowStep — all
+aihwkit device models [1], fitted through aihwkit&#39;s <code>fit_measurements</code> [1];
+the parameter choices, bounds and normalization are HWKit GUI design) and
+opens a chooser listing the candidates ranked by RMSE (best first). Selecting
+a row previews its simulated LTP/LTD response against the measured points.
+Device types that could <strong>not</strong> be fit are listed below the choices together
+with the failure reason — a missing candidate is never a silent mystery.</p>
+
+<p>For <code>ExpStepDevice</code> the fit additionally calibrates the nonlinearity
+parameters (<code>A_up</code>, <code>A_down</code>, <code>gamma_up</code>, <code>gamma_down</code>, <code>a</code>, <code>b</code>) instead of
+keeping aihwkit&#39;s generic defaults.</p>
+
+<h3 id="toc_7">3.4 The <code>.fit</code> file</h3>
+
+<p>Current format — a dict holding the device plus the physical mapping:</p>
+
+<div><pre><code class="language-python">{&quot;device&quot;: ExpStepDevice(...), &quot;offset&quot;: 0.6972, &quot;scale&quot;: 0.5388}</code></pre></div>
+
+<p><strong>Security:</strong> <code>.fit</code> files are parsed through a whitelisting AST evaluator,
+not <code>eval()</code>. Only the supported device constructors, <code>DriftParameter</code>,
+numeric literals and numpy scalar wrappers are allowed — a manipulated file
+cannot execute code.</p>
+
+<hr>
+
+<h2 id="toc_8">4. Configuration</h2>
+
+<h3 id="toc_9">4.1 Simulation config (<code>.sim</code>)</h3>
+
+<p><strong>Configure simulation…</strong> opens a dialog with the following fields. Blank
+entries fall back to the field&#39;s default. All fields are stored in the <code>.sim</code>
+file (JSON).</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type / range</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Epochs</td>
+<td>int &gt; 0</td>
+<td>100</td>
+<td>training epochs</td>
+</tr>
+<tr>
+<td>LR</td>
+<td>0 &lt; float &lt; 1</td>
+<td>0.001</td>
+<td>SGD/Adam learning rate</td>
+</tr>
+<tr>
+<td>Optimizer</td>
+<td>AnalogSGD / AnalogAdam</td>
+<td>AnalogSGD</td>
+<td>see §8.6 for how to read AnalogAdam results</td>
+</tr>
+<tr>
+<td>Train Batch Size</td>
+<td>int &gt; 0</td>
+<td>64</td>
+<td></td>
+</tr>
+<tr>
+<td>Test Batch Size</td>
+<td>int &gt; 0</td>
+<td>256</td>
+<td></td>
+</tr>
+<tr>
+<td>Seed</td>
+<td>int ≥ 0</td>
+<td>0</td>
+<td>0 = fresh randomness every run; any other value makes data subsets, shuffling and weight init reproducible. The analog device noise is not seedable (aihwkit-internal RNG), so repeated runs still differ slightly — average several runs for headline numbers.</td>
+</tr>
+<tr>
+<td>Train Epoch Size</td>
+<td>int &gt; 0</td>
+<td>8000</td>
+<td>images drawn per epoch (random subset)</td>
+</tr>
+<tr>
+<td>Test Epoch Size</td>
+<td>int &gt; 0</td>
+<td>1000</td>
+<td>test images (fixed subset)</td>
+</tr>
+<tr>
+<td>Dataset</td>
+<td>MNIST / FashionMNIST / CIFAR10</td>
+<td>MNIST</td>
+<td></td>
+</tr>
+<tr>
+<td>Max Crossbar Size</td>
+<td>int &gt; 0</td>
+<td>512</td>
+<td>layers larger than this are split into multiple tiles</td>
+</tr>
+<tr>
+<td>Device Mode</td>
+<td>see §5</td>
+<td>None</td>
+<td>synapse architecture</td>
+</tr>
+<tr>
+<td>Fast LR</td>
+<td>float ≥ 0</td>
+<td>1.0</td>
+<td>Tiki-Taka modes only: LR of the fast matrix (§5.4)</td>
+</tr>
+<tr>
+<td>Transfer Every</td>
+<td>float ≥ 0</td>
+<td>1.0</td>
+<td>Tiki-Taka modes only: transfer period — <strong>batches</strong> for TikiTaka, <strong>mat-vecs</strong> for the TTv2 modes</td>
+</tr>
+<tr>
+<td>Chopper Prob</td>
+<td>0 ≤ float ≤ 1</td>
+<td>0.01</td>
+<td>TikiTakaV2Chopped only: chopper switching probability</td>
+</tr>
+<tr>
+<td>Refresh Every</td>
+<td>int ≥ 0</td>
+<td>1</td>
+<td>OneSided only: batches between refresh sweeps, 0 = never (§5.3)</td>
+</tr>
+<tr>
+<td>DAC Resolution (bits)</td>
+<td>int &gt; 0</td>
+<td>7</td>
+<td>input converter resolution</td>
+</tr>
+<tr>
+<td>DAC Noise Std</td>
+<td>0 ≤ float ≤ 1</td>
+<td>0.0</td>
+<td>input noise std</td>
+</tr>
+<tr>
+<td>ADC Resolution (bits)</td>
+<td>int &gt; 0</td>
+<td>9</td>
+<td>output converter resolution</td>
+</tr>
+<tr>
+<td>ADC Noise Std</td>
+<td>0 ≤ float ≤ 1</td>
+<td>0.06</td>
+<td>output noise std (relative to the output bound)</td>
+</tr>
+<tr>
+<td>Circuit Read Noise Std</td>
+<td>0 ≤ float ≤ 1</td>
+<td>0.0</td>
+<td>additive weight-read noise</td>
+</tr>
+<tr>
+<td>Noisy Backward Pass</td>
+<td>Yes / No</td>
+<td>Yes</td>
+<td>No = backward pass stays ideal (NeuroSim convention)</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="toc_10">4.2 Network config (<code>.net</code>)</h3>
+
+<p><strong>Configure network…</strong> is a single window: a type dropdown (<strong>MLP</strong> /
+<strong>CNN</strong>), layer rows with <strong>+ Add layer</strong> / <strong>− Remove last</strong> buttons, and the
+activation. The convolutional section (out-channels / kernel size per layer,
+each conv followed by the activation + 2×2 max-pooling, odd kernels only,
+max 4 layers) only appears while CNN is selected; the hidden-layer section
+lists the fully-connected sizes. All weight layers are analog
+(<code>AnalogLinear</code> / <code>AnalogConv2d</code>); biases are digital (§8.5).</p>
+
+<hr>
+
+<h2 id="toc_11">5. Device modes</h2>
+
+<p>The <strong>Device Mode</strong> field selects how one logical weight is realized in
+hardware. All modes use the <em>same</em> fitted device — what changes is the
+synapse architecture and the training algorithm around it. The one exception
+is <strong>Ideal</strong> (§5.7), the pure-software baseline that uses no device at all.</p>
+
+<h3 id="toc_12">5.1 None — single device</h3>
+
+<p><em>Implementation: aihwkit <code>SingleRPUConfig</code> [1].</em></p>
+
+<p>One device per weight: <code>w = G − reference</code>. Simplest and cheapest; fully
+exposed to the device&#39;s asymmetry and noise. Needs the reference subtraction
+(§8.1).</p>
+
+<h3 id="toc_13">5.2 AveragedPair — two averaged devices</h3>
+
+<p><em>Implementation: aihwkit <code>VectorUnitCell</code> [1]; the equal-weight averaging
+setup is HWKit GUI design.</em></p>
+
+<p>Two identical devices whose <strong>average</strong> is the weight
+(<code>gamma_vec = [0.5, 0.5]</code>, alternating updates). Each single-device pulse
+moves the combined weight by half a step — doubling the effective number of
+states and averaging some noise. <strong>This is not a differential pair</strong> — both
+cells contribute with the same sign; the true differential pair is the
+OneSided mode (§5.3).</p>
+
+<h3 id="toc_14">5.3 OneSided — true differential pair</h3>
+
+<p><em>Implementation: aihwkit <code>OneSidedUnitCell</code> incl. the refresh mechanism [1].</em></p>
+
+<p>The weight is a difference of two cells, <code>w = G⁺ − G⁻</code>. Positive updates only
+ever potentiate G⁺, negative ones only G⁻ — every write uses the device&#39;s
+<em>good</em> direction, which partially sidesteps an asymmetric device response.
+The reference subtraction cancels in the pair, so this mode needs no
+reference column (§8.1).</p>
+
+<p>Because both cells can only fill up, the pair needs a periodic <strong>refresh</strong>:
+read the difference, reset both cells, rewrite one. <strong>Refresh Every</strong> sets
+how many batches pass between refresh sweeps (during a sweep only weights
+whose fuller cell exceeds 75 % of its range are rewritten):</p>
+
+<ul>
+<li><code>1</code> — check after every batch (safest, highest hardware overhead),</li>
+<li><code>N</code> — check every N batches (1/N of the overhead, more saturation risk),</li>
+<li><code>0</code> — never: both cells saturate and the weights <strong>freeze</strong>; accuracy
+visibly decays after the first epochs. Only useful to demonstrate the
+effect.</li>
+</ul>
+
+<h3 id="toc_15">5.4 TikiTaka — transfer-based training</h3>
+
+<p><em>Implementation: aihwkit <code>TransferCompound</code> [1]; algorithm from Gokmen &amp;
+Haensch [3].</em></p>
+
+<p>Two matrices per layer: a <strong>fast</strong> matrix A absorbs every SGD update, and its
+content is periodically (partially) transferred to a <strong>slow</strong> matrix C — the
+one actually used in the forward/backward pass. Averages out update noise.
+Works best on devices with a usable symmetry point; on strongly asymmetric
+devices plain TikiTaka converges poorly (that is the physics, not a bug —
+use the TTv2 modes there).</p>
+
+<ul>
+<li><strong>Fast LR</strong> — learning rate of the update onto A (the SGD LR then only
+scales the transfer). For plain TikiTaka larger values (≈ 1.0) work better.</li>
+<li><strong>Transfer Every</strong> — batches between transfers.</li>
+</ul>
+
+<h3 id="toc_16">5.5 TikiTakaV2 — buffered transfer</h3>
+
+<p><em>Implementation: aihwkit <code>ChoppedTransferCompound</code> (choppers off) [1];
+algorithm from Gokmen [4].</em></p>
+
+<p>Like TikiTaka, but the read of the fast matrix lands on a <strong>digital buffer</strong>
+first; only buffer entries that crossed a threshold write the slow matrix.
+This filters device read noise and small spurious transfers.
+<strong>Transfer Every</strong> counts single mat-vecs (samples) here, matching aihwkit&#39;s
+convention for this compound. For the TTv2 modes a <strong>Fast LR of ≈ 0.1</strong> is
+the recommended starting point (aihwkit&#39;s own TTv2 presets use it); 1.0 can
+become unstable after a few epochs.</p>
+
+<h3 id="toc_17">5.6 TikiTakaV2Chopped — buffered transfer + chopping</h3>
+
+<p><em>Implementation: aihwkit <code>ChoppedTransferCompound</code> [1]; algorithm from
+Gokmen [4].</em></p>
+
+<p>TikiTakaV2 plus <strong>choppers</strong>: updates onto the fast matrix are written with a
+randomly flipping sign and the sign is recovered on readout. The gradient
+signal survives; the device&#39;s systematic bias/asymmetry does not follow the
+sign flips and averages out in the buffer. <strong>Chopper Prob</strong> is the per-read
+probability of a sign flip (0.01 ≈ one flip per 100 reads). This is the mode
+that most directly addresses a strongly asymmetric device response.</p>
+
+<hr>
+
+<h3 id="toc_18">5.7 Ideal — software baseline</h3>
+
+<p><em>Implementation: plain PyTorch layers (<code>nn.Linear</code>/<code>nn.Conv2d</code>) — no aihwkit
+tiles involved.</em></p>
+
+<p>Pure floating-point software training: the fitted device and every periphery
+non-ideality are ignored (the DAC/ADC/noise and crossbar fields have no
+effect), and no device needs to be loaded. Use it to measure the <strong>theoretical maximum</strong> of
+the configured network under the identical training regime (same data,
+batches, epochs) <em>before</em> letting any device loose on it — the gap between an
+Ideal run and a device run is exactly what the analog hardware costs.</p>
+
+<hr>
+
+<h2 id="toc_19">6. Running a simulation</h2>
+
+<p><strong>Simulate</strong> requires a device, a simulation config and a network (the GUI
+lists what is missing). While running:</p>
+
+<ul>
+<li>the <strong>Notes</strong> panel shows aihwkit&#39;s analog summary of the <em>exact</em> model
+about to be trained (layers, tile counts),</li>
+<li>the <strong>training plot</strong> shows live test/train accuracy and loss per epoch,</li>
+<li><strong>Cancel</strong> stops after the current epoch and keeps everything recorded so
+far.</li>
+</ul>
+
+<p>Results accumulate as CSV (<code>epoch;test_acc;train_acc;loss</code>) and can be saved
+via <strong>Save results</strong>. Every results file starts with a <code>#</code>-prefixed metadata
+block — timestamp, the exact fitted device, offset/scale, the full simulation
+config and the network — so a saved <code>.csv</code> is always traceable to the run
+that produced it (CSV tools skip <code>#</code> lines).</p>
+
+<h3 id="toc_20">6.1 Batch runs without the GUI</h3>
+
+<p><code>batch_runner.py</code> runs many simulations one after another without opening a window —
+for seed repetitions, parameter sweeps or anything else where clicking through the GUI
+would take longer than the runs themselves. It uses the same <code>.fit</code>, <code>.sim</code> and <code>.net</code>
+files the GUI writes, calls the same <code>SimulationRunner</code>, and produces the same results
+CSV. Nothing about the simulation itself changes.</p>
+
+<p>The input is a manifest, one row per run:</p>
+
+<div><pre><code class="language-none">RunID;fit;sim;net;seed;out
+A1;Devices/SVS.fit;Sims/A1.sim;Nets/MLP_100.net;1;Results/A1_s1.csv
+A1;Devices/SVS.fit;Sims/A1.sim;Nets/MLP_100.net;2;Results/A1_s2.csv
+A1;Devices/SVS.fit;Sims/A1.sim;Nets/MLP_100.net;3;Results/A1_s3.csv</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>RunID</code></td>
+<td>free label, only used in the console output and the log</td>
+</tr>
+<tr>
+<td><code>fit</code>, <code>sim</code>, <code>net</code></td>
+<td>the three input files; relative paths resolve against the manifest</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td>overrides the <code>Seed</code> entry of the <code>.sim</code>; leave empty to keep the file&#39;s value</td>
+</tr>
+<tr>
+<td><code>out</code></td>
+<td>where the results CSV is written</td>
+</tr>
+</tbody>
+</table>
+
+<p>Because <code>seed</code> overrides the file, <strong>one <code>.sim</code> per configuration covers all of its
+repetitions</strong> — the three rows above share a single config file.</p>
+
+<blockquote>
+<p><code>Seed: 0</code> means <em>unseeded</em>, not &quot;seed number zero&quot;: <code>simulate()</code> does
+<code>if seed: torch.manual_seed(seed)</code>, and <code>0</code> is falsy. Use <code>1, 2, 3 …</code> for
+repetitions. The runner rejects a manifest that asks for seed <code>0</code>.</p>
+</blockquote>
+
+<p>Run it from the <code>HWKit</code> directory with the <code>aihwkit</code> environment, because the training
+data is read from <code>./data</code> relative to the working directory:</p>
+
+<div><pre><code class="language-bash">conda activate aihwkit
+cd HWKit
+python batch_runner.py manifest.csv --dry-run          # check paths, run nothing
+python batch_runner.py manifest.csv --workers 4        # 4 runs at a time
+python batch_runner.py manifest.csv --workers 4 --log batch.log</code></pre></div>
+
+<p><code>--workers</code> is how many runs happen at once. Four is a reasonable default on a ten-core
+machine: measured on a <code>TikiTakaV2Chopped</code> config it is about 2.3× faster than running
+them one by one, while leaving cores and memory free for other work. More workers mainly
+cost memory — each one holds its own model and dataset.</p>
+
+<p>Alongside every results CSV the runner writes the effective <code>.sim</code> with the seed applied,
+so any single run can be reloaded into the GUI and repeated from a file.</p>
+
+<p>Failures are reported and logged, and the exit status is non-zero if anything failed. A
+failure inside a run — missing file, broken config, an error raised by aihwkit — costs
+only that run; the others continue. If a worker process dies outright instead (killed for
+memory, segfault in the native backend), Python never sees an exception and the process
+pool is torn down: the runs still queued at that moment are logged as failed without
+having been executed. The log lists which ones, so they can be re-run from a shortened
+manifest.</p>
+
+<hr>
+
+<h2 id="toc_21">7. Files</h2>
+
+<table>
+<thead>
+<tr>
+<th>Extension</th>
+<th>Content</th>
+<th>Format</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>.txt</code></td>
+<td>measured conductances (§3.1)</td>
+<td>plain text, one value per line</td>
+</tr>
+<tr>
+<td><code>.fit</code></td>
+<td>fitted device + offset/scale (§3.4)</td>
+<td>Python-repr dict, whitelisted parse</td>
+</tr>
+<tr>
+<td><code>.sim</code></td>
+<td>simulation config (§4.1)</td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><code>.net</code></td>
+<td>network architecture (§4.2)</td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><code>.csv</code></td>
+<td>training results + run metadata</td>
+<td><code>#</code> metadata lines (device, config, network), then <code>epoch;test_acc;train_acc;loss</code></td>
+</tr>
+<tr>
+<td><code>.csv</code></td>
+<td>batch manifest (§6.1)</td>
+<td><code>RunID;fit;sim;net;seed;out</code>, one row per run</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="toc_22">8. Physical assumptions and limitations</h2>
+
+<p>These are deliberate modeling choices. They should be quoted in any thesis or
+report that uses HWKit GUI results.</p>
+
+<h3 id="toc_23">8.1 Reference subtraction</h3>
+
+<p>A single memristive device has only positive conductance; representing
+negative weights as <code>w = G − offset</code> requires subtracting a reference. Two
+hardware options exist: an <strong>analog reference column</strong> biased at <code>G_offset</code>,
+or a <strong>digital subtraction</strong> — the offset contribution to each output is
+<code>offset · Σx</code>, and <code>Σx</code> is already known in the digital domain, so one
+multiply-and-subtract per output removes it exactly. The simulation models an
+exact, noiseless reference, which corresponds to the digital variant (an
+analog reference column would add its own noise and drift, which are not
+modeled). The <strong>OneSided</strong> mode needs neither: there the reference cancels in
+the pair <code>G⁺ − G⁻</code>.</p>
+
+<h3 id="toc_24">8.2 Identical-pulse interpretation of ramp measurements</h3>
+
+<p>The available measurement was taken with a pulse-<strong>amplitude ramp</strong>
+(potentiation −2 → −3.5 V, depression 0 → 4.5 V, different pulse widths).
+The fit, however, interprets the curve as the response to <em>identical</em> pulses:
+the per-pulse change is attributed entirely to the device state, while in the
+measurement it partly came from the growing amplitude. Consequences:</p>
+
+<ul>
+<li>the effective <strong>number of analog states</strong> — the key figure for analog
+trainability — may be substantially over- or underestimated,</li>
+<li>part of the fitted up/down <strong>asymmetry</strong> may be a protocol artifact
+(different ramps and pulse widths per direction),</li>
+<li>a per-update amplitude ramp is not implementable in the open-loop parallel
+pulsed update that aihwkit (and the analog-training concept) assumes.</li>
+</ul>
+
+<h3 id="toc_25">8.3 Weight scale</h3>
+
+<p>Weights are normalized to <a href="%C2%A73.2">−1, +1</a>, so results are independent of the
+measurement unit.</p>
+
+<h3 id="toc_26">8.4 Peripheral I/O management</h3>
+
+<p>aihwkit&#39;s defaults are kept [1]: <code>ABS_MAX</code> noise management (each input vector is
+rescaled to its absolute maximum before the DAC) and <code>ITERATIVE</code> bound
+management (a matrix-vector product is repeated with halved scaling when the
+ADC saturates). Both correspond to real but non-trivial peripheral circuitry;
+they are the common baseline in the aihwkit literature. The transfer read
+(Tiki-Taka modes) and refresh read (OneSided) run through the same DAC/ADC
+non-idealities as the normal forward pass, with noise/bound management
+disabled for the one-hot transfer reads, following aihwkit&#39;s own presets.</p>
+
+<h3 id="toc_27">8.5 Digital biases and gradient clipping</h3>
+
+<p>Layer biases are digital (aihwkit default) and unbounded, unlike the
+hardware-bounded analog weights. They train with a reduced learning rate
+(<code>BIAS_LR_SCALE = 0.5</code>) and are the <strong>only</strong> parameters affected by the
+gradient-norm clipping in the training loop: analog tile updates bypass
+<code>.grad</code> entirely (aihwkit replays stored activation/error vectors as pulsed
+rank-1 updates), and a global norm clip across crossbars would require
+hardware nobody builds. The clip is a safety net for the digital biases only.</p>
+
+<h3 id="toc_28">8.6 AnalogAdam</h3>
+
+<p>Adam keeps two digital state values per weight, which negates the analog
+efficiency advantage — a real analog accelerator would not implement it.</p>
+
+<h3 id="toc_29">8.7 Same technology for all cells</h3>
+
+<p>Multi-device modes (AveragedPair, OneSided, Tiki-Taka fast &amp; slow matrices)
+build every cell from the <em>same</em> fitted device — i.e. all crossbars share one
+technology. Using a different (e.g. capacitor-based) device for the fast
+Tiki-Taka matrix is a possible future extension.</p>
+
+<h3 id="toc_30">8.8 Fit freedom of <code>w_max</code></h3>
+
+<p>The fit may move the model&#39;s <code>w_max</code> up to 2× away from the measured maximum
+(soft-bounds devices approach their bound asymptotically, so the model bound
+can legitimately lie beyond the last measured point). If a fit result reports
+<code>w_max</code> exactly at that limit (2.0 in normalized units), the bound was
+binding — inspect the fit quality before using it.</p>
+
+<hr>
+
+<h2 id="toc_31">9. Troubleshooting</h2>
+
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause / fix</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>OneSided: accuracy rises, then decays over epochs</td>
+<td><code>Refresh Every = 0</code> — the cells saturate and weights freeze. Set it to ≥ 1.</td>
+</tr>
+<tr>
+<td>TikiTaka converges much worse than None</td>
+<td>Expected on strongly asymmetric devices; use TikiTakaV2(Chopped), or raise Fast LR (≈ 1.0) for plain TikiTaka.</td>
+</tr>
+<tr>
+<td>TTv2 modes unstable after a few epochs</td>
+<td>Lower Fast LR to ≈ 0.1 (aihwkit&#39;s own preset value).</td>
+</tr>
+<tr>
+<td>Crash on import: OpenMP / libomp error (macOS)</td>
+<td><code>main.py</code> sets <code>KMP_DUPLICATE_LIB_OK=TRUE</code> automatically; if it still occurs, set the variable in the environment.</td>
+</tr>
+<tr>
+<td>A device type is missing in the fit chooser</td>
+<td>It could not be fit; the reason is listed below the candidate list.</td>
+</tr>
+<tr>
+<td>CIFAR10 accuracy is low</td>
+<td>Expected: the small MLP/CNN architectures here do not reach modern CIFAR10 accuracy; use it for relative comparisons only.</td>
+</tr>
+<tr>
+<td>Loading a <code>.fit</code> fails with &quot;call not allowed&quot;</td>
+<td>The file contains something other than a saved device — only files written by HWKit GUI (or matching its format) can be loaded.</td>
+</tr>
+<tr>
+<td>Device response preview differs every time the same <code>.fit</code> is loaded</td>
+<td>The device carries device-to-device variation (<code>dw_min_dtod</code>, <code>w_min_dtod</code>, <code>w_max_dtod</code> &gt; 0); the preview simulates one randomly drawn device instance per load. Expected behaviour, not data corruption.</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="toc_32">10. Glossary</h2>
+
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>LTP / LTD</td>
+<td>long-term potentiation / depression — conductance increase / decrease under pulses</td>
+</tr>
+<tr>
+<td>Crossbar / tile</td>
+<td>analog matrix of devices computing a matrix-vector product; large layers are split into tiles</td>
+</tr>
+<tr>
+<td>MVM</td>
+<td>matrix-vector multiplication (one analog forward read)</td>
+</tr>
+<tr>
+<td><code>dw_min</code></td>
+<td>smallest conductance step of a device — sets the number of analog states</td>
+</tr>
+<tr>
+<td><code>up_down</code></td>
+<td>asymmetry of the up vs. down step size</td>
+</tr>
+<tr>
+<td>DAC / ADC</td>
+<td>digital-analog / analog-digital converters at the crossbar inputs/outputs</td>
+</tr>
+<tr>
+<td>Transfer</td>
+<td>Tiki-Taka: moving accumulated updates from the fast to the slow matrix</td>
+</tr>
+<tr>
+<td>Chopper</td>
+<td>random sign flip applied to updates, removing systematic device bias</td>
+</tr>
+<tr>
+<td>Refresh</td>
+<td>OneSided: reading the pair difference, resetting both cells, rewriting one</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="toc_33">11. References</h2>
+
+<ol>
+<li>IBM aihwkit — <em>IBM Analog Hardware Acceleration Kit</em>, version 1.1.0.
+<a href="https://github.com/IBM/aihwkit">https://github.com/IBM/aihwkit</a> · documentation:
+<a href="https://aihwkit.readthedocs.io">https://aihwkit.readthedocs.io</a></li>
+<li>M. J. Rasch et al., <em>A Flexible and Fast PyTorch Toolkit for Simulating
+Training and Inference on Analog Crossbar Arrays</em>, IEEE AICAS, 2021.</li>
+<li>T. Gokmen and W. Haensch, <em>Algorithm for Training Neural Networks on
+Resistive Device Arrays</em>, Frontiers in Neuroscience 14:103, 2020.</li>
+<li>T. Gokmen, <em>Enabling Training of Neural Networks on Noisy Hardware</em>,
+Frontiers in Artificial Intelligence 4:699148, 2021.</li>
+</ol>
+
+
+
+
+</body>
+
+</html>

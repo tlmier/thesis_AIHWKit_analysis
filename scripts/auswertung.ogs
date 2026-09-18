@@ -1,0 +1,471 @@
+// ============================================================
+// Auswertung: Rohkurven -> eine Tabelle je Schema (CVS oder SVS)
+//
+// Fuehrt metrics.ogs (Metriken je Lauf) und mitteln.ogs (Mittelung
+// ueber die drei Seeds) in EINEM Durchlauf zusammen. Eingabe sind
+// direkt die drei Origin-Datenbooks eines Schemas mit je 64
+// Kurven-Sheets (Spalte 1 = Epoche 1..N, Spalte 2 = Accuracy %).
+// Ausgabe ist ein Book mit einer Zeile je Konfiguration. Kein Plot.
+//
+// metrics.ogs und mitteln.ogs bleiben unveraendert als Referenz.
+// Der alte Ablauf "metrics.ogs 3x, Books umbenennen, mitteln.ogs"
+// entfaellt: hier nur die vier Namen unten setzen und starten.
+//
+// Umsetzungshinweise (Origin 2026):
+//   - keine benutzerdefinierten Funktionen (dataset-Parameter mit
+//     Bereichs-Subscript liefern NANUM).
+//   - dataset-Slice  d[a:b]  liefert in diesem Build NANUM.
+//     Nur  col(N)[a:b]  auf einer echten Worksheet-Spalte geht.
+//     Deshalb: jede Kurve wird in ein 1-spaltiges Scratch-Sheet
+//     geschrieben (wc1[k] = ...) und dort mit col(1)[a:b] gerechnet
+//     - exakt wie metrics.ogs.
+//   - LabTalk ist bei Variablennamen NICHT case-sensitiv (g0 == G0).
+//
+// ------------------------------------------------------------
+// Warum diese Auswertung anders aggregiert als mitteln.ogs
+// ------------------------------------------------------------
+// Bei nur drei Seeds sind das gemittelte RobustCV (Mittel ueber
+// 1-2 Werte) und der E95-Median (ein zensierter Seed kippt die
+// Zelle) nicht mehr aussagekraeftig. Ersetzt durch:
+//
+//   E_conv    Epoche, ab der die LERNER-Mittelkurve das Niveau
+//             thres*M* erreicht und nHold Epochen haelt.
+//             Mittelkurve = Mittel nur der Seeds mit Learned = 1.
+//              >0 = echte Konvergenzepoche (Kurve war vorher darunter)
+//               0 = Kurve lag ab Epoche 1 auf Niveau, kein echter
+//                   Anstieg / keine Lernphase - wie -1 behandeln
+//              -1 = nHold-Serie nie erreicht
+//
+//   S_ripple  Wie ruhig das Plateau ist. Robuste SD  MAD/0.6745
+//             (in Prozentpunkten) je Lerner-Kurve, Maximum ueber die
+//             Lerner. Elementweise gerechnet (dataset-abs bricht in
+//             Origin 2026).
+//             Fenster:  E_conv > 0  -> [E_conv .. N]
+//                       E_conv = 0  -> [1 .. N]  (ganze Kurve = Plateau)
+//             -1 = nicht beurteilbar (nLearned = 0 oder E_conv = -1).
+//
+// Aggregationsregel:
+//   Mstar_mean/min/max/span : ueber ALLE 3 Seeds. Ein nicht
+//       lernender Seed geht mit seinem echten Wert (~10-24 %) ein
+//       und zieht den Mittelwert runter -> Mstar_mean ist der
+//       ehrliche Erwartungswert, die nLearned-Codierung steckt
+//       schon drin. nLearned und Mstar_span trennen die Restfaelle.
+//   E_conv, S_ripple, Mstar_meancurve : nur ueber die LERNER.
+//       Bei nLearned = 0 stehen alle drei auf -1 (nicht grau).
+//   T = thres * Mstar_meancurve (M* der Lerner-Mittelkurve).
+//
+// Einziger Sentinel ist -1 = "keine Konvergenz / kein Niveau".
+// Kein 0/0 (Missing). SeedDependent (= 0 < nLearned < 3)
+// unterdrueckt nichts, ist nur eine Info-Spalte.
+// ============================================================
+
+
+// --- Parameter: die vier Namen des Schemas ------------------
+string d0$   = "Seed0SVS";      // Roh-Datenbook Seed 0 (Short Name)
+string d1$   = "Seed1SVS";      // Roh-Datenbook Seed 1
+string d2$   = "Seed2SVS";      // Roh-Datenbook Seed 2
+string outN$ = "Auswert_SVS";   // Long Name des Ergebnisbooks
+
+double thres  = 0.95;   // Bruchteil von M*, der als "erreicht" gilt
+double minAcc = 25;     // M* darunter = Lauf hat nie gelernt.
+                        // JE SCHEMA PRUEFEN: 25 trennt CVS sauber; bei SVS
+                        // fangen zusaetzlich die E_conv=0-Faelle die Grenzgaenger.
+int    nWin   = 10;     // Fensterbreite W fuer alle gleitenden Mediane
+int    nHold  = 3;      // so viele Epochen in Folge muessen halten
+double degRel = 0.10;   // relativer Verlust, ab dem "degradiert" gilt
+
+int    diag   = 0;      // 1 = DIAG-Zeilen fuer die erste Konfiguration
+int    testN  = 0;      // > 0: nur die ersten testN Konfigurationen rechnen
+                        // (schneller Probelauf). 0 = voller Lauf ueber alle 64.
+
+
+// --- Guards: Namen -----------------------------------------------
+if(exist(%(d0$)) == 0 || exist(%(d1$)) == 0 || exist(%(d2$)) == 0)
+{
+    type "ABBRUCH: mindestens eines der drei Roh-Datenbooks fehlt.";
+    type "  gesucht (Short Names): %(d0$) , %(d1$) , %(d2$)";
+    return;
+}
+if(d0$ == d1$ || d0$ == d2$ || d1$ == d2$)
+{
+    type "ABBRUCH: d0$/d1$/d2$ muessen drei verschiedene Books sein.";
+    return;
+}
+
+
+// --- Pass 1: Sheet-Namen der drei Books einsammeln --------------
+string tb$;
+newbook name:="AuswTmpNames" sheet:=1 result:=tb$;
+wks.ncols = 3;
+wks.col1.format = 2;  wks.col2.format = 2;  wks.col3.format = 2;
+range tn0 = [%(tb$)]1!col(1);
+range tn1 = [%(tb$)]1!col(2);
+range tn2 = [%(tb$)]1!col(3);
+
+int nSh = 0;
+window -a %(d0$);
+doc -e LW
+{
+    string ln$ = layer.name$;
+    if(ln.GetToken(1, '_')$ == "output") { nSh++; tn0[nSh]$ = ln$; }
+}
+
+int j1 = 0;
+window -a %(d1$);
+doc -e LW
+{
+    string ln$ = layer.name$;
+    if(ln.GetToken(1, '_')$ == "output") { j1++; tn1[j1]$ = ln$; }
+}
+
+int j2 = 0;
+window -a %(d2$);
+doc -e LW
+{
+    string ln$ = layer.name$;
+    if(ln.GetToken(1, '_')$ == "output") { j2++; tn2[j2]$ = ln$; }
+}
+
+if(nSh == 0)
+{
+    type "ABBRUCH: keine output_-Sheets in %(d0$) gefunden.";
+    win -c %(tb$);
+    return;
+}
+if(nSh != j1 || nSh != j2)
+{
+    type "ABBRUCH: unterschiedlich viele output_-Sheets:";
+    type "  %(d0$)=$(nSh)  %(d1$)=$(j1)  %(d2$)=$(j2)";
+    win -c %(tb$);
+    return;
+}
+if(nSh != 64) type "WARNUNG: $(nSh) output_-Sheets (erwartet 64) - laeuft trotzdem.";
+
+int mis = 0;
+int tt;
+for(tt = 1; tt <= nSh; tt++)
+{
+    if(mis == 0 && (tn1[tt]$ != tn0[tt]$ || tn2[tt]$ != tn0[tt]$)) mis = tt;
+}
+if(mis > 0)
+{
+    string x0$ = tn0[mis]$;   string x1$ = tn1[mis]$;   string x2$ = tn2[mis]$;
+    type "ABBRUCH: Sheet-Reihenfolge weicht ab (Position $(mis)):";
+    type "  %(d0$): %(x0$)";
+    type "  %(d1$): %(x1$)";
+    type "  %(d2$): %(x2$)";
+    type "  Die drei Books identisch importieren / gleich sortieren.";
+    win -c %(tb$);
+    return;
+}
+
+
+// --- Scratch-Sheet (2 Spalten): col1 = Kurve, col2 = |Abweichung| -
+string sc$;
+newbook name:="AuswTmpCurve" sheet:=1 result:=sc$;
+wks.ncols = 2;
+range wc1 = [%(sc$)]1!col(1);
+range wc2 = [%(sc$)]1!col(2);
+
+
+// --- Ergebnisbook anlegen --------------------------------------
+string rb$;
+newbook name:=outN$ sheet:=1 result:=rb$;
+type "Ergebnisse -> Book %(rb$)   (Daten: %(d0$), %(d1$), %(d2$))";
+if(rb$ == d0$ || rb$ == d1$ || rb$ == d2$)
+{
+    type "ABBRUCH: Ergebnisbook gleicht einem Datenbook.";
+    win -c %(tb$);  win -c %(sc$);
+    return;
+}
+
+wks.ncols = 15;
+wks.col1.format = 2;
+wks.col3.format = 2;
+col(1)[L]$  = "RowLabel";
+col(2)[L]$  = "HiddenLayers";
+col(3)[L]$  = "Optimizer";
+col(4)[L]$  = "BatchSize";
+col(5)[L]$  = "Mstar_mean";
+col(6)[L]$  = "Mstar_min";
+col(7)[L]$  = "Mstar_max";
+col(8)[L]$  = "Mstar_span";
+col(9)[L]$  = "Mstar_meancurve";
+col(10)[L]$ = "E_conv";
+col(11)[L]$ = "E_conv_nSeed";
+col(12)[L]$ = "S_ripple";
+col(13)[L]$ = "nLearned";
+col(14)[L]$ = "nLost";
+col(15)[L]$ = "SeedDependent";
+col(1)[C]$ = "nWin=$(nWin) thres=$(thres) minAcc=$(minAcc) nHold=$(nHold) degRel=$(degRel) T=thres*Mstar_meancurve E_conv:0=abStart S_ripple=MAD/0.6745 Fenster[E_conv..N], E_conv=0:[1..N]";
+
+range qLab = [%(rb$)]1!col(1);    range qHL  = [%(rb$)]1!col(2);
+range qOpt = [%(rb$)]1!col(3);    range qBS  = [%(rb$)]1!col(4);
+range qMm  = [%(rb$)]1!col(5);    range qMn  = [%(rb$)]1!col(6);
+range qMx  = [%(rb$)]1!col(7);    range qSp  = [%(rb$)]1!col(8);
+range qMc  = [%(rb$)]1!col(9);    range qEc  = [%(rb$)]1!col(10);
+range qEn  = [%(rb$)]1!col(11);   range qSr  = [%(rb$)]1!col(12);
+range qNl  = [%(rb$)]1!col(13);   range qLo  = [%(rb$)]1!col(14);
+range qSd  = [%(rb$)]1!col(15);
+
+
+// --- Pass 2: eine Zeile je Konfiguration ---------------------
+int nSeedDep   = 0;
+int nAllDead   = 0;
+int nNoConv    = 0;   // gelernt, aber nHold-Serie nie erreicht (E_conv = -1)
+int nFromStart = 0;   // gelernt, aber ab Epoche 1 auf Niveau (E_conv = 0)
+
+int nRun = nSh;
+if(testN > 0 && testN < nRun) nRun = testN;
+if(nRun < nSh) type "PROBELAUF: nur die ersten $(nRun) von $(nSh) Konfigurationen (testN).";
+
+int cfg;
+for(cfg = 1; cfg <= nRun; cfg++)
+{
+    string sh$ = tn0[cfg]$;
+
+    // -- die drei Kurven als dataset (Skalarzugriff geht, Slice nicht)
+    range RC0 = [%(d0$)]%(sh$)!col(2);
+    range RC1 = [%(d1$)]%(sh$)!col(2);
+    range RC2 = [%(d2$)]%(sh$)!col(2);
+    dataset da0 = RC0 + 0;   int N0 = da0.GetSize();
+    dataset da1 = RC1 + 0;   int N1 = da1.GetSize();
+    dataset da2 = RC2 + 0;   int N2 = da2.GetSize();
+    if(N0 != N1 || N0 != N2)
+    {
+        type "ABBRUCH: %(sh$) hat verschieden viele Epochen: $(N0) / $(N1) / $(N2)";
+        win -c %(tb$);  win -c %(sc$);
+        return;
+    }
+    int N = N0;
+
+    string sOpt$ = sh.GetToken(2, '_')$;
+    string sBS$  = sh.GetToken(3, '_')$;
+    string sHL$  = sh.GetToken(4, '_')$;
+    if(sOpt$ == "" || sBS$ == "" || sHL$ == "")
+    {
+        type "ABBRUCH: Sheetname %(sh$) passt nicht zu output_<Opt>_<Batch>_<Hidden>.";
+        win -c %(tb$);  win -c %(sc$);
+        return;
+    }
+
+    window -a %(sc$);
+    wks.nRows = N;
+
+    // -- Ergebnisgroessen je Seed + Mittelkurve --------------
+    double M0 = 0;   double M1 = 0;   double M2 = 0;
+    int    L0 = 0;   int    L1 = 0;   int    L2 = 0;
+    int    G0 = 0;   int    G1 = 0;   int    G2 = 0;
+    double P0 = -1;  double P1 = -1;  double P2 = -1;
+    double Mc      = -1;
+    double Econv   = -1;
+    int    nLearned = 0;
+
+    int k;
+    int jc;
+    for(jc = 1; jc <= 4; jc++)
+    {
+        int skip = 0;
+
+        if(jc == 4)
+        {
+            nLearned = L0 + L1 + L2;
+            if(nLearned == 0) skip = 1;
+        }
+
+        if(skip == 0)
+        {
+            // -- die zu bewertende Kurve nach wc1 (Scratch col 1) --
+            for(k = 1; k <= N; k++)
+            {
+                if(jc == 1) wc1[k] = da0[k];
+                if(jc == 2) wc1[k] = da1[k];
+                if(jc == 3) wc1[k] = da2[k];
+                if(jc == 4)
+                {
+                    double mk = 0;
+                    if(L0 == 1) mk = mk + da0[k];
+                    if(L1 == 1) mk = mk + da1[k];
+                    if(L2 == 1) mk = mk + da2[k];
+                    wc1[k] = mk / nLearned;
+                }
+            }
+
+            // -- M*: bestes gleitendes W-Fenster (col(1)[a:b] geht) --
+            double bst = -1;
+            int wi;
+            for(wi = 1; wi <= N - nWin + 1; wi++)
+            {
+                int wend = wi + nWin - 1;
+                range rwin = col(1)[wi:wend];
+                double mm = median(rwin);
+                if(mm > bst) bst = mm;
+            }
+
+            // -- M_end und Degradation --------------------------
+            int si = N - nWin + 1;   if(si < 1) si = 1;
+            range rend = col(1)[si:N];
+            double mend = median(rend);
+            int lrn = (bst >= minAcc);
+            int dgd = 0;
+            if(lrn == 1 && (bst - mend) > degRel * bst) dgd = 1;
+
+            // -- Vorwaertsscan: erste nHold-Serie >= thres*bst -------
+            // fe = -1 : Serie nie erreicht
+            // fe =  0 : Serie erreicht, aber Kurve war nie unter thres*bst
+            //           (ab Start auf Niveau, keine echte Lernphase)
+            // fe > 0  : echte Konvergenzepoche (vorher gab es einen Wert darunter)
+            double fe = -1;
+            if(lrn == 1)
+            {
+                double tgt = bst * thres;
+                int rlen  = 0;
+                int below = 0;
+                int ii;
+                for(ii = 1; ii <= N; ii++)
+                {
+                    if(col(1)[ii] >= tgt)
+                    {
+                        rlen++;
+                        if(rlen >= nHold && fe < 0)
+                        {
+                            if(below == 1) fe = ii - nHold + 1;
+                            else           fe = 0;
+                        }
+                    }
+                    else { rlen = 0; below = 1; }
+                }
+            }
+
+            if(jc == 1) { M0 = bst; L0 = lrn; G0 = dgd; P0 = fe; }
+            if(jc == 2) { M1 = bst; L1 = lrn; G1 = dgd; P1 = fe; }
+            if(jc == 3) { M2 = bst; L2 = lrn; G2 = dgd; P2 = fe; }
+            if(jc == 4)
+            {
+                Mc = bst;
+                if(bst >= minAcc) Econv = fe;   // fe traegt -1, 0 oder Epoche
+                else              Econv = -1;
+            }
+        }
+    }
+    if(nLearned == 0) nLearned = L0 + L1 + L2;
+
+    if(diag == 1 && cfg == 1)
+    {
+        for(k = 1; k <= N; k++) { wc1[k] = da0[k]; }
+        range rt = col(1)[1:nWin];
+        double dbgSl = median(rt);
+        double dbgLo = da0[1];
+        type "DIAG %(sh$): N=$(N)  da0[1]=$(dbgLo)  median(col1[1:$(nWin)])=$(dbgSl)";
+        type "DIAG M0=$(M0)  M1=$(M1)  M2=$(M2)  Mc=$(Mc)  E_conv=$(Econv)  nLearned=$(nLearned)";
+    }
+
+    // -- E_conv_nSeed: von den Lernern einzeln gehalten ------
+    int EconvN = 0;
+    if(P0 > 0.5) EconvN++;
+    if(P1 > 0.5) EconvN++;
+    if(P2 > 0.5) EconvN++;
+
+    // -- nLost: gelernt UND degradiert ----------------------
+    int nLost = 0;
+    if(L0 == 1 && G0 == 1) nLost++;
+    if(L1 == 1 && G1 == 1) nLost++;
+    if(L2 == 1 && G2 == 1) nLost++;
+
+    // -- S_ripple: robuste SD je Lerner, Maximum ueber die Lerner ---
+    // Fenster: E_conv>0 -> [E_conv..N] ; E_conv=0 -> [1..N] (ganze Kurve).
+    // E_conv=-1 oder nLearned=0 -> Sr bleibt -1.
+    // |Kurve - Median| elementweise nach wc2 schreiben, dann median(wc2).
+    // Kein dataset-abs (bricht in Origin 2026).
+    double Sr = -1;
+    if(nLearned > 0 && Econv > -0.5)
+    {
+        int ic = Econv;
+        if(ic < 1) ic = 1;         // E_conv = 0 -> Fensterstart Epoche 1
+        if(ic > N) ic = N;
+        int wlen = N - ic + 1;
+        double bestSD = -1;
+        int kk;
+
+        if(L0 == 1)
+        {
+            for(k = 1; k <= N; k++) { wc1[k] = da0[k]; }
+            range sr0 = col(1)[ic:N];
+            double md0 = median(sr0);
+            for(kk = ic; kk <= N; kk++) { wc2[kk - ic + 1] = abs(col(1)[kk] - md0); }
+            range rd0 = col(2)[1:wlen];
+            double sd0 = median(rd0) / 0.6745;
+            if(sd0 > bestSD) bestSD = sd0;
+        }
+        if(L1 == 1)
+        {
+            for(k = 1; k <= N; k++) { wc1[k] = da1[k]; }
+            range sr1 = col(1)[ic:N];
+            double md1 = median(sr1);
+            for(kk = ic; kk <= N; kk++) { wc2[kk - ic + 1] = abs(col(1)[kk] - md1); }
+            range rd1 = col(2)[1:wlen];
+            double sd1 = median(rd1) / 0.6745;
+            if(sd1 > bestSD) bestSD = sd1;
+        }
+        if(L2 == 1)
+        {
+            for(k = 1; k <= N; k++) { wc1[k] = da2[k]; }
+            range sr2 = col(1)[ic:N];
+            double md2 = median(sr2);
+            for(kk = ic; kk <= N; kk++) { wc2[kk - ic + 1] = abs(col(1)[kk] - md2); }
+            range rd2 = col(2)[1:wlen];
+            double sd2 = median(rd2) / 0.6745;
+            if(sd2 > bestSD) bestSD = sd2;
+        }
+        Sr = bestSD;
+    }
+
+    // -- Mstar-Streuung ueber ALLE 3 Seeds ------------------
+    double sMn = M0;   if(M1 < sMn) sMn = M1;   if(M2 < sMn) sMn = M2;
+    double sMx = M0;   if(M1 > sMx) sMx = M1;   if(M2 > sMx) sMx = M2;
+
+    int seedDep = 0;
+    if(nLearned > 0 && nLearned < 3) seedDep = 1;
+
+    // -- Zeile ins Ergebnisbook schreiben ------------------
+    qLab[cfg]$ = "%(sOpt$)_%(sBS$)";
+    qHL[cfg]   = %(sHL$);
+    qOpt[cfg]$ = sOpt$;
+    qBS[cfg]   = %(sBS$);
+    qMm[cfg]   = (M0 + M1 + M2) / 3;
+    qMn[cfg]   = sMn;
+    qMx[cfg]   = sMx;
+    qSp[cfg]   = sMx - sMn;
+    qMc[cfg]   = Mc;
+    qEc[cfg]   = Econv;
+    qEn[cfg]   = EconvN;
+    qSr[cfg]   = Sr;
+    qNl[cfg]   = nLearned;
+    qLo[cfg]   = nLost;
+    qSd[cfg]   = seedDep;
+
+    if(seedDep == 1) nSeedDep++;
+    if(nLearned == 0) nAllDead++;
+    if(nLearned > 0 && Econv < -0.5) nNoConv++;
+    if(nLearned > 0 && Econv > -0.5 && Econv < 0.5) nFromStart++;
+}
+
+win -c %(tb$);
+win -c %(sc$);
+
+
+// --- Schlussmeldung ----------------------------------------
+type "Fertig: $(nRun) Konfigurationen -> %(rb$)";
+if(nRun < nSh) type "  (PROBELAUF - testN oben auf 0 setzen fuer alle $(nSh))";
+type "  seed-abhaengig (0 < nLearned < 3): $(nSeedDep)";
+type "  in keiner Wiederholung gelernt (nLearned = 0): $(nAllDead)";
+type "  gelernt, nHold-Serie nie erreicht (E_conv = -1): $(nNoConv)";
+type "  gelernt, aber ab Start auf Niveau (E_conv = 0): $(nFromStart)";
+if(nSeedDep > 0 || nAllDead > 0 || nNoConv > 0 || nFromStart > 0)
+{
+    type "  E_conv <= 0 in der Heatmap als eigene Kategorie behandeln (keine";
+    type "  Konvergenzepoche). E_conv=0 kann Sofort-Konvergenz ODER Kollaps von";
+    type "  hohem Start sein - ueber Mstar_meancurve / nLost / S_ripple trennen.";
+    type "  S_ripple = -1 (nur bei E_conv = -1) = Stabilitaet nicht beurteilbar.";
+    type "  SeedDependent = 1 ebenfalls eigens kennzeichnen.";
+}
